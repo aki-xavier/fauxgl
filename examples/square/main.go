@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	. "github.com/fogleman/fauxgl"
+	fauxgl "github.com/aki-xavier/fauxgl/src"
 	"github.com/nfnt/resize"
 )
 
@@ -18,22 +18,22 @@ const (
 )
 
 var (
-	eye    = V(0, -2, 1.4)             // camera position
-	center = V(0, 0, -0.2)             // view center position
-	up     = V(0, 0, 1)                // up vector
-	light  = V(0, -0.5, 1).Normalize() // light direction
-	color  = HexColor("#468966")       // object color
+	eye    = fauxgl.V(0, -2, 1.4)             // camera position
+	center = fauxgl.V(0, 0, -0.2)             // view center position
+	up     = fauxgl.V(0, 0, 1)                // up vector
+	light  = fauxgl.V(0, -0.5, 1).Normalize() // light direction
+	color  = fauxgl.HexColor("#468966")       // object color
 )
 
 func main() {
 	// load the mesh
-	mesh, err := LoadOBJ("examples/square.obj")
+	mesh, err := fauxgl.LoadOBJ("examples/square/square.obj")
 	if err != nil {
 		panic(err)
 	}
 
 	// load the texture
-	texture, err := LoadTexture("examples/texture.png")
+	texture, err := fauxgl.LoadTexture("examples/square/texture.png")
 	if err != nil {
 		panic(err)
 	}
@@ -42,16 +42,16 @@ func main() {
 	mesh.BiUnitCube()
 
 	// create a rendering context
-	context := NewContext(width*scale, height*scale)
-	context.ClearColor = White
+	context := fauxgl.NewContext(width*scale, height*scale)
+	context.ClearColor = fauxgl.White
 	context.ClearColorBuffer()
 
 	// create transformation matrix and light direction
 	aspect := float64(width) / float64(height)
-	matrix := LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
+	matrix := fauxgl.LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
 
 	// render
-	shader := NewTextureShader(matrix, texture)
+	shader := fauxgl.NewTextureShader(matrix, texture)
 	shader.Texture = texture
 	start := time.Now()
 	context.Shader = shader
@@ -63,5 +63,5 @@ func main() {
 	image = resize.Resize(width, height, image, resize.Bilinear)
 
 	// save image
-	SavePNG("out.png", image)
+	fauxgl.SavePNG("out.png", image)
 }
