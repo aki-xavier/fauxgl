@@ -7,16 +7,20 @@ import (
 	"sync"
 )
 
+// Face :
 type Face int
 
+// Faces :
 const (
 	_ Face = iota
 	FaceCW
 	FaceCCW
 )
 
+// Cull :
 type Cull int
 
+// Culls :
 const (
 	_ Cull = iota
 	CullNone
@@ -24,11 +28,13 @@ const (
 	CullBack
 )
 
+// RasterizeInfo :
 type RasterizeInfo struct {
 	TotalPixels   uint64
 	UpdatedPixels uint64
 }
 
+// Add :
 func (info RasterizeInfo) Add(other RasterizeInfo) RasterizeInfo {
 	return RasterizeInfo{
 		info.TotalPixels + other.TotalPixels,
@@ -36,6 +42,7 @@ func (info RasterizeInfo) Add(other RasterizeInfo) RasterizeInfo {
 	}
 }
 
+// Context :
 type Context struct {
 	Width        int
 	Height       int
@@ -56,6 +63,7 @@ type Context struct {
 	locks        []sync.Mutex
 }
 
+// NewContext :
 func NewContext(width, height int) *Context {
 	dc := &Context{}
 	dc.Width = width
@@ -79,10 +87,12 @@ func NewContext(width, height int) *Context {
 	return dc
 }
 
+// Image :
 func (dc *Context) Image() image.Image {
 	return dc.ColorBuffer
 }
 
+// ClearColorBufferWith :
 func (dc *Context) ClearColorBufferWith(color Color) {
 	c := color.NRGBA()
 	for y := 0; y < dc.Height; y++ {
@@ -97,16 +107,19 @@ func (dc *Context) ClearColorBufferWith(color Color) {
 	}
 }
 
+// ClearColorBuffer :
 func (dc *Context) ClearColorBuffer() {
 	dc.ClearColorBufferWith(dc.ClearColor)
 }
 
+// ClearDepthBufferWith :
 func (dc *Context) ClearDepthBufferWith(value float64) {
 	for i := range dc.DepthBuffer {
 		dc.DepthBuffer[i] = value
 	}
 }
 
+// ClearDepthBuffer :
 func (dc *Context) ClearDepthBuffer() {
 	dc.ClearDepthBufferWith(math.MaxFloat64)
 }
@@ -289,8 +302,8 @@ func (dc *Context) drawClippedTriangle(v0, v1, v2 Vertex) RasterizeInfo {
 	// back face culling
 	a := (ndc1.X-ndc0.X)*(ndc2.Y-ndc0.Y) - (ndc2.X-ndc0.X)*(ndc1.Y-ndc0.Y)
 	if a < 0 {
-		v0, v1, v2 = v2, v1, v0
-		ndc0, ndc1, ndc2 = ndc2, ndc1, ndc0
+		v0, v2 = v2, v0
+		ndc0, ndc2 = ndc2, ndc0
 	}
 	if dc.Cull == CullFront {
 		a = -a
@@ -310,11 +323,11 @@ func (dc *Context) drawClippedTriangle(v0, v1, v2 Vertex) RasterizeInfo {
 	// rasterize
 	if dc.Wireframe {
 		return dc.wireframe(v0, v1, v2, s0, s1, s2)
-	} else {
-		return dc.rasterize(v0, v1, v2, s0, s1, s2)
 	}
+	return dc.rasterize(v0, v1, v2, s0, s1, s2)
 }
 
+// DrawLine :
 func (dc *Context) DrawLine(t *Line) RasterizeInfo {
 	// invoke vertex shader
 	v1 := dc.Shader.Vertex(t.V1)
@@ -325,15 +338,13 @@ func (dc *Context) DrawLine(t *Line) RasterizeInfo {
 		line := ClipLine(NewLine(v1, v2))
 		if line != nil {
 			return dc.drawClippedLine(line.V1, line.V2)
-		} else {
-			return RasterizeInfo{}
 		}
-	} else {
-		// no need to clip
-		return dc.drawClippedLine(v1, v2)
+		return RasterizeInfo{}
 	}
+	return dc.drawClippedLine(v1, v2)
 }
 
+// DrawTriangle :
 func (dc *Context) DrawTriangle(t *Triangle) RasterizeInfo {
 	// invoke vertex shader
 	v1 := dc.Shader.Vertex(t.V1)
@@ -349,12 +360,12 @@ func (dc *Context) DrawTriangle(t *Triangle) RasterizeInfo {
 			result = result.Add(info)
 		}
 		return result
-	} else {
-		// no need to clip
-		return dc.drawClippedTriangle(v1, v2, v3)
 	}
+	// no need to clip
+	return dc.drawClippedTriangle(v1, v2, v3)
 }
 
+// DrawLines :
 func (dc *Context) DrawLines(lines []*Line) RasterizeInfo {
 	wn := runtime.NumCPU()
 	ch := make(chan RasterizeInfo, wn)
@@ -377,6 +388,7 @@ func (dc *Context) DrawLines(lines []*Line) RasterizeInfo {
 	return result
 }
 
+// DrawTriangles :
 func (dc *Context) DrawTriangles(triangles []*Triangle) RasterizeInfo {
 	wn := runtime.NumCPU()
 	ch := make(chan RasterizeInfo, wn)
@@ -399,6 +411,7 @@ func (dc *Context) DrawTriangles(triangles []*Triangle) RasterizeInfo {
 	return result
 }
 
+// DrawMesh :
 func (dc *Context) DrawMesh(mesh *Mesh) RasterizeInfo {
 	info1 := dc.DrawTriangles(mesh.Triangles)
 	info2 := dc.DrawLines(mesh.Lines)

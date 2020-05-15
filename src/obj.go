@@ -16,6 +16,7 @@ func parseIndex(value string, length int) int {
 	return n
 }
 
+// LoadOBJ :
 func LoadOBJ(path string) (*Mesh, error) {
 	file, err := os.Open(path)
 	if err != nil {

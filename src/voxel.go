@@ -1,5 +1,6 @@
 package fauxgl
 
+// Voxel :
 type Voxel struct {
 	X, Y, Z int
 	Color   Color
@@ -39,6 +40,7 @@ type voxelFace struct {
 	I1, J1 int
 }
 
+// NewVoxelMesh :
 func NewVoxelMesh(voxels []Voxel) *Mesh {
 	type key struct {
 		X, Y, Z int

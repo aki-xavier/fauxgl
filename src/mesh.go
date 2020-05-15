@@ -6,24 +6,29 @@ import (
 	"github.com/fogleman/simplify"
 )
 
+// Mesh :
 type Mesh struct {
 	Triangles []*Triangle
 	Lines     []*Line
 	box       *Box
 }
 
+// NewEmptyMesh :
 func NewEmptyMesh() *Mesh {
 	return &Mesh{}
 }
 
+// NewMesh :
 func NewMesh(triangles []*Triangle, lines []*Line) *Mesh {
 	return &Mesh{triangles, lines, nil}
 }
 
+// NewTriangleMesh :
 func NewTriangleMesh(triangles []*Triangle) *Mesh {
 	return &Mesh{triangles, nil, nil}
 }
 
+// NewLineMesh :
 func NewLineMesh(lines []*Line) *Mesh {
 	return &Mesh{nil, lines, nil}
 }
@@ -32,6 +37,7 @@ func (m *Mesh) dirty() {
 	m.box = nil
 }
 
+// Copy :
 func (m *Mesh) Copy() *Mesh {
 	triangles := make([]*Triangle, len(m.Triangles))
 	lines := make([]*Line, len(m.Lines))
@@ -46,18 +52,21 @@ func (m *Mesh) Copy() *Mesh {
 	return NewMesh(triangles, lines)
 }
 
-func (a *Mesh) Add(b *Mesh) {
-	a.Triangles = append(a.Triangles, b.Triangles...)
-	a.Lines = append(a.Lines, b.Lines...)
-	a.dirty()
+// Add :
+func (m *Mesh) Add(b *Mesh) {
+	m.Triangles = append(m.Triangles, b.Triangles...)
+	m.Lines = append(m.Lines, b.Lines...)
+	m.dirty()
 }
 
+// SetColor :
 func (m *Mesh) SetColor(c Color) {
 	for _, t := range m.Triangles {
 		t.SetColor(c)
 	}
 }
 
+// Volume :
 func (m *Mesh) Volume() float64 {
 	var v float64
 	for _, t := range m.Triangles {
@@ -69,6 +78,7 @@ func (m *Mesh) Volume() float64 {
 	return math.Abs(v / 6)
 }
 
+// SurfaceArea :
 func (m *Mesh) SurfaceArea() float64 {
 	var a float64
 	for _, t := range m.Triangles {
@@ -87,6 +97,7 @@ func smoothNormalsThreshold(normal Vector, normals []Vector, threshold float64) 
 	return result.Normalize()
 }
 
+// SmoothNormalsThreshold :
 func (m *Mesh) SmoothNormalsThreshold(radians float64) {
 	threshold := math.Cos(radians)
 	lookup := make(map[Vector][]Vector)
@@ -102,6 +113,7 @@ func (m *Mesh) SmoothNormalsThreshold(radians float64) {
 	}
 }
 
+// SmoothNormals :
 func (m *Mesh) SmoothNormals() {
 	lookup := make(map[Vector]Vector)
 	for _, t := range m.Triangles {
@@ -119,26 +131,31 @@ func (m *Mesh) SmoothNormals() {
 	}
 }
 
+// UnitCube :
 func (m *Mesh) UnitCube() Matrix {
 	const r = 0.5
 	return m.FitInside(Box{Vector{-r, -r, -r}, Vector{r, r, r}}, Vector{0.5, 0.5, 0.5})
 }
 
+// BiUnitCube :
 func (m *Mesh) BiUnitCube() Matrix {
 	const r = 1
 	return m.FitInside(Box{Vector{-r, -r, -r}, Vector{r, r, r}}, Vector{0.5, 0.5, 0.5})
 }
 
+// MoveTo :
 func (m *Mesh) MoveTo(position, anchor Vector) Matrix {
 	matrix := Translate(position.Sub(m.BoundingBox().Anchor(anchor)))
 	m.Transform(matrix)
 	return matrix
 }
 
+// Center :
 func (m *Mesh) Center() Matrix {
 	return m.MoveTo(Vector{}, Vector{0.5, 0.5, 0.5})
 }
 
+// FitInside :
 func (m *Mesh) FitInside(box Box, anchor Vector) Matrix {
 	scale := box.Size().Div(m.BoundingBox().Size()).MinComponent()
 	extra := box.Size().Sub(m.BoundingBox().Size().MulScalar(scale))
@@ -150,6 +167,7 @@ func (m *Mesh) FitInside(box Box, anchor Vector) Matrix {
 	return matrix
 }
 
+// BoundingBox :
 func (m *Mesh) BoundingBox() Box {
 	if m.box == nil {
 		box := EmptyBox
@@ -164,6 +182,7 @@ func (m *Mesh) BoundingBox() Box {
 	return *m.box
 }
 
+// Transform :
 func (m *Mesh) Transform(matrix Matrix) {
 	for _, t := range m.Triangles {
 		t.Transform(matrix)
@@ -174,12 +193,14 @@ func (m *Mesh) Transform(matrix Matrix) {
 	m.dirty()
 }
 
+// ReverseWinding :
 func (m *Mesh) ReverseWinding() {
 	for _, t := range m.Triangles {
 		t.ReverseWinding()
 	}
 }
 
+// Simplify :
 func (m *Mesh) Simplify(factor float64) {
 	st := make([]*simplify.Triangle, len(m.Triangles))
 	for i, t := range m.Triangles {
@@ -200,14 +221,17 @@ func (m *Mesh) Simplify(factor float64) {
 	m.dirty()
 }
 
+// SaveSTL :
 func (m *Mesh) SaveSTL(path string) error {
 	return SaveSTL(path, m)
 }
 
+// Silhouette :
 func (m *Mesh) Silhouette(eye Vector, offset float64) *Mesh {
 	return silhouette(m, eye, offset)
 }
 
+// SplitTriangles :
 func (m *Mesh) SplitTriangles(maxEdgeLength float64) {
 	var triangles []*Triangle
 

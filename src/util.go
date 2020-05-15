@@ -3,6 +3,8 @@ package fauxgl
 import (
 	"fmt"
 	"image"
+
+	// import jpeg
 	_ "image/jpeg"
 	"image/png"
 	"math"
@@ -12,14 +14,17 @@ import (
 	"strings"
 )
 
+// Radians :
 func Radians(degrees float64) float64 {
 	return degrees * math.Pi / 180
 }
 
+// Degrees :
 func Degrees(radians float64) float64 {
 	return radians * 180 / math.Pi
 }
 
+// LatLngToXYZ :
 func LatLngToXYZ(lat, lng float64) Vector {
 	lat, lng = Radians(lat), Radians(lng)
 	x := math.Cos(lat) * math.Cos(lng)
@@ -28,6 +33,7 @@ func LatLngToXYZ(lat, lng float64) Vector {
 	return Vector{x, y, z}
 }
 
+// LoadMesh :
 func LoadMesh(path string) (*Mesh, error) {
 	ext := strings.ToLower(filepath.Ext(path))
 	switch ext {
@@ -43,6 +49,7 @@ func LoadMesh(path string) (*Mesh, error) {
 	return nil, fmt.Errorf("unrecognized mesh extension: %s", ext)
 }
 
+// LoadImage :
 func LoadImage(path string) (image.Image, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -53,6 +60,7 @@ func LoadImage(path string) (image.Image, error) {
 	return im, err
 }
 
+// SavePNG :
 func SavePNG(path string, im image.Image) error {
 	file, err := os.Create(path)
 	if err != nil {
@@ -62,6 +70,7 @@ func SavePNG(path string, im image.Image) error {
 	return png.Encode(file, im)
 }
 
+// ParseFloats :
 func ParseFloats(items []string) []float64 {
 	result := make([]float64, len(items))
 	for i, item := range items {
@@ -71,6 +80,7 @@ func ParseFloats(items []string) []float64 {
 	return result
 }
 
+// Clamp :
 func Clamp(x, lo, hi float64) float64 {
 	if x < lo {
 		return lo
@@ -81,6 +91,7 @@ func Clamp(x, lo, hi float64) float64 {
 	return x
 }
 
+// ClampInt :
 func ClampInt(x, lo, hi int) int {
 	if x < lo {
 		return lo
@@ -91,6 +102,7 @@ func ClampInt(x, lo, hi int) int {
 	return x
 }
 
+// AbsInt :
 func AbsInt(x int) int {
 	if x < 0 {
 		return -x
@@ -98,14 +110,15 @@ func AbsInt(x int) int {
 	return x
 }
 
+// Round :
 func Round(a float64) int {
 	if a < 0 {
 		return int(math.Ceil(a - 0.5))
-	} else {
-		return int(math.Floor(a + 0.5))
 	}
+	return int(math.Floor(a + 0.5))
 }
 
+// RoundPlaces :
 func RoundPlaces(a float64, places int) float64 {
 	shift := powersOfTen[places]
 	return float64(Round(a*shift)) / shift

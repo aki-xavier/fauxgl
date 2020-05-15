@@ -7,21 +7,25 @@ import (
 	"os"
 )
 
+// VOXHeader :
 type VOXHeader struct {
 	Magic   [4]byte
 	Version int32
 }
 
+// VOXChunk :
 type VOXChunk struct {
 	ID            [4]byte
 	ContentBytes  int32
 	ChildrenBytes int32
 }
 
+// VOXVoxel :
 type VOXVoxel struct {
 	X, Y, Z, I uint8
 }
 
+// LoadVOX :
 func LoadVOX(path string) ([]Voxel, error) {
 	// open file
 	file, err := os.Open(path)

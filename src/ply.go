@@ -12,13 +12,13 @@ type plyFormat int
 
 const (
 	_ plyFormat = iota
-	plyAscii
+	plyASCII
 	plyBinaryLittleEndian
 	plyBinaryBigEndian
 )
 
 var plyFormatMapping = map[string]plyFormat{
-	"ascii":                plyAscii,
+	"ascii":                plyASCII,
 	"binary_little_endian": plyBinaryLittleEndian,
 	"binary_big_endian":    plyBinaryBigEndian,
 }
@@ -68,6 +68,7 @@ type plyElement struct {
 	properties []plyProperty
 }
 
+// LoadPLY :
 func LoadPLY(path string) (*Mesh, error) {
 	// open file
 	file, err := os.Open(path)
@@ -80,7 +81,7 @@ func LoadPLY(path string) (*Mesh, error) {
 	reader := bufio.NewReader(file)
 	var element plyElement
 	var elements []plyElement
-	format := plyAscii
+	format := plyASCII
 	bytes := 0
 	for {
 		line, err := reader.ReadString('\n')
@@ -134,11 +135,11 @@ func LoadPLY(path string) (*Mesh, error) {
 	case plyBinaryLittleEndian:
 		return loadPlyBinary(file, elements, binary.LittleEndian)
 	default:
-		return loadPlyAscii(file, elements)
+		return loadPlyASCII(file, elements)
 	}
 }
 
-func loadPlyAscii(file *os.File, elements []plyElement) (*Mesh, error) {
+func loadPlyASCII(file *os.File, elements []plyElement) (*Mesh, error) {
 	scanner := bufio.NewScanner(file)
 	var vertexes []Vector
 	var triangles []*Triangle

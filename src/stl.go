@@ -10,16 +10,19 @@ import (
 	"strings"
 )
 
+// STLHeader :
 type STLHeader struct {
 	_     [80]uint8
 	Count uint32
 }
 
+// STLTriangle :
 type STLTriangle struct {
 	N, V1, V2, V3 [3]float32
 	_             uint16
 }
 
+// LoadSTL :
 func LoadSTL(path string) (*Mesh, error) {
 	// open file
 	file, err := os.Open(path)
@@ -51,9 +54,8 @@ func LoadSTL(path string) (*Mesh, error) {
 	// parse ascii or binary stl
 	if size == expectedSize {
 		return loadSTLB(file)
-	} else {
-		return loadSTLA(file)
 	}
+	return loadSTLA(file)
 }
 
 func loadSTLA(file *os.File) (*Mesh, error) {
@@ -153,6 +155,7 @@ func loadSTLB(file *os.File) (*Mesh, error) {
 	return mesh, nil
 }
 
+// SaveSTL :
 func SaveSTL(path string, mesh *Mesh) error {
 	file, err := os.Create(path)
 	if err != nil {

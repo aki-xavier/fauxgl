@@ -2,6 +2,7 @@ package fauxgl
 
 import "math"
 
+// Shader :
 type Shader interface {
 	Vertex(Vertex) Vertex
 	Fragment(Vertex) Color
@@ -13,15 +14,18 @@ type SolidColorShader struct {
 	Color  Color
 }
 
+// NewSolidColorShader :
 func NewSolidColorShader(matrix Matrix, color Color) *SolidColorShader {
 	return &SolidColorShader{matrix, color}
 }
 
+// Vertex :
 func (shader *SolidColorShader) Vertex(v Vertex) Vertex {
 	v.Output = shader.Matrix.MulPositionW(v.Position)
 	return v
 }
 
+// Fragment :
 func (shader *SolidColorShader) Fragment(v Vertex) Color {
 	return shader.Color
 }
@@ -32,15 +36,18 @@ type TextureShader struct {
 	Texture Texture
 }
 
+// NewTextureShader :
 func NewTextureShader(matrix Matrix, texture Texture) *TextureShader {
 	return &TextureShader{matrix, texture}
 }
 
+// Vertex :
 func (shader *TextureShader) Vertex(v Vertex) Vertex {
 	v.Output = shader.Matrix.MulPositionW(v.Position)
 	return v
 }
 
+// Fragment :
 func (shader *TextureShader) Fragment(v Vertex) Color {
 	return shader.Texture.BilinearSample(v.Texture.X, v.Texture.Y)
 }
@@ -58,6 +65,7 @@ type PhongShader struct {
 	SpecularPower  float64
 }
 
+// NewPhongShader :
 func NewPhongShader(matrix Matrix, lightDirection, cameraPosition Vector) *PhongShader {
 	ambient := Color{0.2, 0.2, 0.2, 1}
 	diffuse := Color{0.8, 0.8, 0.8, 1}
@@ -67,11 +75,13 @@ func NewPhongShader(matrix Matrix, lightDirection, cameraPosition Vector) *Phong
 		Discard, ambient, diffuse, specular, nil, 32}
 }
 
+// Vertex :
 func (shader *PhongShader) Vertex(v Vertex) Vertex {
 	v.Output = shader.Matrix.MulPositionW(v.Position)
 	return v
 }
 
+// Fragment :
 func (shader *PhongShader) Fragment(v Vertex) Color {
 	light := shader.AmbientColor
 	color := v.Color

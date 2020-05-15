@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// Load3DS :
 func Load3DS(filename string) (*Mesh, error) {
 	type ChunkHeader struct {
 		ChunkID uint16

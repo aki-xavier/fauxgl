@@ -5,11 +5,13 @@ import (
 	"math"
 )
 
+// Texture :
 type Texture interface {
 	Sample(u, v float64) Color
 	BilinearSample(u, v float64) Color
 }
 
+// LoadTexture :
 func LoadTexture(path string) (Texture, error) {
 	im, err := LoadImage(path)
 	if err != nil {
@@ -18,17 +20,20 @@ func LoadTexture(path string) (Texture, error) {
 	return NewImageTexture(im), nil
 }
 
+// ImageTexture :
 type ImageTexture struct {
 	Width  int
 	Height int
 	Image  image.Image
 }
 
+// NewImageTexture :
 func NewImageTexture(im image.Image) Texture {
 	size := im.Bounds().Max
 	return &ImageTexture{size.X, size.Y, im}
 }
 
+// Sample :
 func (t *ImageTexture) Sample(u, v float64) Color {
 	v = 1 - v
 	u -= math.Floor(u)
@@ -38,6 +43,7 @@ func (t *ImageTexture) Sample(u, v float64) Color {
 	return MakeColor(t.Image.At(x, y))
 }
 
+// BilinearSample :
 func (t *ImageTexture) BilinearSample(u, v float64) Color {
 	v = 1 - v
 	u -= math.Floor(u)

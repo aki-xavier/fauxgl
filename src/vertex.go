@@ -1,5 +1,6 @@
 package fauxgl
 
+// Vertex :
 type Vertex struct {
 	Position Vector
 	Normal   Vector
@@ -11,10 +12,12 @@ type Vertex struct {
 	// Floats   []float64
 }
 
+// Outside :
 func (a Vertex) Outside() bool {
 	return a.Output.Outside()
 }
 
+// InterpolateVertexes :
 func InterpolateVertexes(v1, v2, v3 Vertex, b VectorW) Vertex {
 	v := Vertex{}
 	v.Position = InterpolateVectors(v1.Position, v2.Position, v3.Position, b)
@@ -46,6 +49,7 @@ func InterpolateVertexes(v1, v2, v3 Vertex, b VectorW) Vertex {
 	return v
 }
 
+// InterpolateFloats :
 func InterpolateFloats(v1, v2, v3 float64, b VectorW) float64 {
 	var n float64
 	n += v1 * b.X
@@ -54,6 +58,7 @@ func InterpolateFloats(v1, v2, v3 float64, b VectorW) float64 {
 	return n * b.W
 }
 
+// InterpolateColors :
 func InterpolateColors(v1, v2, v3 Color, b VectorW) Color {
 	n := Color{}
 	n = n.Add(v1.MulScalar(b.X))
@@ -62,6 +67,7 @@ func InterpolateColors(v1, v2, v3 Color, b VectorW) Color {
 	return n.MulScalar(b.W)
 }
 
+// InterpolateVectors :
 func InterpolateVectors(v1, v2, v3 Vector, b VectorW) Vector {
 	n := Vector{}
 	n = n.Add(v1.MulScalar(b.X))
@@ -70,6 +76,7 @@ func InterpolateVectors(v1, v2, v3 Vector, b VectorW) Vector {
 	return n.MulScalar(b.W)
 }
 
+// InterpolateVectorWs :
 func InterpolateVectorWs(v1, v2, v3, b VectorW) VectorW {
 	n := VectorW{}
 	n = n.Add(v1.MulScalar(b.X))
@@ -78,6 +85,7 @@ func InterpolateVectorWs(v1, v2, v3, b VectorW) VectorW {
 	return n.MulScalar(b.W)
 }
 
+// Barycentric :
 func Barycentric(p1, p2, p3, p Vector) VectorW {
 	v0 := p2.Sub(p1)
 	v1 := p3.Sub(p1)

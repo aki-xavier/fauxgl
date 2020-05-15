@@ -8,26 +8,34 @@ import (
 )
 
 var (
-	Discard     = Color{}
+	// Discard :
+	Discard = Color{}
+	// Transparent :
 	Transparent = Color{}
-	Black       = Color{0, 0, 0, 1}
-	White       = Color{1, 1, 1, 1}
+	// Black :
+	Black = Color{0, 0, 0, 1}
+	// White :
+	White = Color{1, 1, 1, 1}
 )
 
+// Color :
 type Color struct {
 	R, G, B, A float64
 }
 
+// Gray :
 func Gray(x float64) Color {
 	return Color{x, x, x, 1}
 }
 
+// MakeColor :
 func MakeColor(c color.Color) Color {
 	r, g, b, a := c.RGBA()
 	const d = 0xffff
 	return Color{float64(r) / d, float64(g) / d, float64(b) / d, float64(a) / d}
 }
 
+// HexColor :
 func HexColor(x string) Color {
 	x = strings.Trim(x, "#")
 	var r, g, b, a int
@@ -53,6 +61,7 @@ func HexColor(x string) Color {
 	return Color{float64(r) / d, float64(g) / d, float64(b) / d, float64(a) / d}
 }
 
+// NRGBA :
 func (c Color) NRGBA() color.NRGBA {
 	const d = 0xff
 	r := Clamp(c.R, 0, 1)
@@ -62,58 +71,72 @@ func (c Color) NRGBA() color.NRGBA {
 	return color.NRGBA{uint8(r * d), uint8(g * d), uint8(b * d), uint8(a * d)}
 }
 
-func (a Color) Opaque() Color {
-	return Color{a.R, a.G, a.B, 1}
+// Opaque :
+func (c Color) Opaque() Color {
+	return Color{c.R, c.G, c.B, 1}
 }
 
-func (a Color) Alpha(alpha float64) Color {
-	return Color{a.R, a.G, a.B, alpha}
+// Alpha :
+func (c Color) Alpha(alpha float64) Color {
+	return Color{c.R, c.G, c.B, alpha}
 }
 
-func (a Color) Lerp(b Color, t float64) Color {
-	return a.Add(b.Sub(a).MulScalar(t))
+// Lerp :
+func (c Color) Lerp(b Color, t float64) Color {
+	return c.Add(b.Sub(c).MulScalar(t))
 }
 
-func (a Color) Add(b Color) Color {
-	return Color{a.R + b.R, a.G + b.G, a.B + b.B, a.A + b.A}
+// Add :
+func (c Color) Add(b Color) Color {
+	return Color{c.R + b.R, c.G + b.G, c.B + b.B, c.A + b.A}
 }
 
-func (a Color) Sub(b Color) Color {
-	return Color{a.R - b.R, a.G - b.G, a.B - b.B, a.A - b.A}
+// Sub :
+func (c Color) Sub(b Color) Color {
+	return Color{c.R - b.R, c.G - b.G, c.B - b.B, c.A - b.A}
 }
 
-func (a Color) Mul(b Color) Color {
-	return Color{a.R * b.R, a.G * b.G, a.B * b.B, a.A * b.A}
+// Mul :
+func (c Color) Mul(b Color) Color {
+	return Color{c.R * b.R, c.G * b.G, c.B * b.B, c.A * b.A}
 }
 
-func (a Color) Div(b Color) Color {
-	return Color{a.R / b.R, a.G / b.G, a.B / b.B, a.A / b.A}
+// Div :
+func (c Color) Div(b Color) Color {
+	return Color{c.R / b.R, c.G / b.G, c.B / b.B, c.A / b.A}
 }
 
-func (a Color) AddScalar(b float64) Color {
-	return Color{a.R + b, a.G + b, a.B + b, a.A + b}
+// AddScalar :
+func (c Color) AddScalar(b float64) Color {
+	return Color{c.R + b, c.G + b, c.B + b, c.A + b}
 }
 
-func (a Color) SubScalar(b float64) Color {
-	return Color{a.R - b, a.G - b, a.B - b, a.A - b}
+// SubScalar :
+func (c Color) SubScalar(b float64) Color {
+	return Color{c.R - b, c.G - b, c.B - b, c.A - b}
 }
 
-func (a Color) MulScalar(b float64) Color {
-	return Color{a.R * b, a.G * b, a.B * b, a.A * b}
+// MulScalar :
+func (c Color) MulScalar(b float64) Color {
+	return Color{c.R * b, c.G * b, c.B * b, c.A * b}
 }
 
-func (a Color) DivScalar(b float64) Color {
-	return Color{a.R / b, a.G / b, a.B / b, a.A / b}
+// DivScalar :
+func (c Color) DivScalar(b float64) Color {
+	return Color{c.R / b, c.G / b, c.B / b, c.A / b}
 }
 
-func (a Color) Pow(b float64) Color {
-	return Color{math.Pow(a.R, b), math.Pow(a.G, b), math.Pow(a.B, b), math.Pow(a.A, b)}
+// Pow :
+func (c Color) Pow(b float64) Color {
+	return Color{math.Pow(c.R, b), math.Pow(c.G, b), math.Pow(c.B, b), math.Pow(c.A, b)}
 }
 
-func (a Color) Min(b Color) Color {
-	return Color{math.Min(a.R, b.R), math.Min(a.G, b.G), math.Min(a.B, b.B), math.Min(a.A, b.A)}
+// Min :
+func (c Color) Min(b Color) Color {
+	return Color{math.Min(c.R, b.R), math.Min(c.G, b.G), math.Min(c.B, b.B), math.Min(c.A, b.A)}
 }
 
-func (a Color) Max(b Color) Color {
-	return Color{math.Max(a.R, b.R), math.Max(a.G, b.G), math.Max(a.B, b.B), math.Max(a.A, b.A)}
+// Max :
+func (c Color) Max(b Color) Color {
+	return Color{math.Max(c.R, b.R), math.Max(c.G, b.G), math.Max(c.B, b.B), math.Max(c.A, b.A)}
 }
