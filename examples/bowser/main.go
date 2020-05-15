@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	. "github.com/fogleman/fauxgl"
+	fauxgl "github.com/aki-xavier/fauxgl/src"
 	"github.com/nfnt/resize"
 )
 
@@ -18,14 +18,14 @@ const (
 )
 
 var (
-	eye    = V(3, 1, 0.5)
-	center = V(0, -0.1, 0)
-	up     = V(0, 0, 1)
+	eye    = fauxgl.V(3, 1, 0.5)
+	center = fauxgl.V(0, -0.1, 0)
+	up     = fauxgl.V(0, 0, 1)
 )
 
 func main() {
 	// load a mesh
-	mesh, err := LoadSTL("examples/bowser.stl")
+	mesh, err := fauxgl.LoadSTL("examples/bowser/bowser.stl")
 	if err != nil {
 		panic(err)
 	}
@@ -34,22 +34,22 @@ func main() {
 	mesh.BiUnitCube()
 
 	// smooth the normals
-	mesh.SmoothNormalsThreshold(Radians(30))
+	mesh.SmoothNormalsThreshold(fauxgl.Radians(30))
 
 	// create a rendering context
-	context := NewContext(width*scale, height*scale)
-	context.ClearColorBufferWith(Black)
+	context := fauxgl.NewContext(width*scale, height*scale)
+	context.ClearColorBufferWith(fauxgl.Black)
 
 	// create transformation matrix and light direction
 	aspect := float64(width) / float64(height)
-	matrix := LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
-	light := V(0.75, 0.25, 1).Normalize()
+	matrix := fauxgl.LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
+	light := fauxgl.V(0.75, 0.25, 1).Normalize()
 
 	// render
-	shader := NewPhongShader(matrix, light, eye)
-	shader.ObjectColor = HexColor("FFD34E")
-	shader.DiffuseColor = Gray(0.9)
-	shader.SpecularColor = Gray(0.25)
+	shader := fauxgl.NewPhongShader(matrix, light, eye)
+	shader.ObjectColor = fauxgl.HexColor("FFD34E")
+	shader.DiffuseColor = fauxgl.Gray(0.9)
+	shader.SpecularColor = fauxgl.Gray(0.25)
 	shader.SpecularPower = 100
 	context.Shader = shader
 	start := time.Now()
@@ -60,5 +60,5 @@ func main() {
 	// save image
 	image := context.Image()
 	image = resize.Resize(width, height, image, resize.Bilinear)
-	SavePNG("out.png", image)
+	fauxgl.SavePNG("out.png", image)
 }

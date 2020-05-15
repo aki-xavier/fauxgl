@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	. "github.com/fogleman/fauxgl"
+	fauxgl "github.com/aki-xavier/fauxgl/src"
 	"github.com/nfnt/resize"
 )
 
@@ -18,21 +18,21 @@ const (
 )
 
 var (
-	eye    = V(-3, 1, 2)                // camera position
-	center = V(0, 0, 0)                 // view center position
-	up     = V(0, 0, 1)                 // up vector
-	light  = V(-1, 1, 0.25).Normalize() // light direction
+	eye    = fauxgl.V(-3, 1, 2)                // camera position
+	center = fauxgl.V(0, 0, 0)                 // view center position
+	up     = fauxgl.V(0, 0, 1)                 // up vector
+	light  = fauxgl.V(-1, 1, 0.25).Normalize() // light direction
 )
 
 func main() {
 	// load the mesh
-	mesh, err := LoadOBJ("examples/capsule.obj")
+	mesh, err := fauxgl.LoadOBJ("examples/capsule/capsule.obj")
 	if err != nil {
 		panic(err)
 	}
 
 	// load the texture
-	texture, err := LoadTexture("examples/capsule.jpg")
+	texture, err := fauxgl.LoadTexture("examples/capsule/capsule.jpg")
 	if err != nil {
 		panic(err)
 	}
@@ -41,14 +41,14 @@ func main() {
 	mesh.BiUnitCube()
 
 	// create a rendering context
-	context := NewContext(width*scale, height*scale)
+	context := fauxgl.NewContext(width*scale, height*scale)
 
 	// create transformation matrix and light direction
 	aspect := float64(width) / float64(height)
-	matrix := LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
+	matrix := fauxgl.LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
 
 	// render
-	shader := NewPhongShader(matrix, light, eye)
+	shader := fauxgl.NewPhongShader(matrix, light, eye)
 	shader.Texture = texture
 	context.Shader = shader
 	start := time.Now()
@@ -60,5 +60,5 @@ func main() {
 	image = resize.Resize(width, height, image, resize.Bilinear)
 
 	// save image
-	SavePNG("out.png", image)
+	fauxgl.SavePNG("out.png", image)
 }
