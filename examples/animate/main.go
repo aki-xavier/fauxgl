@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
 
-	. "github.com/fogleman/fauxgl"
+	fauxgl "github.com/aki-xavier/fauxgl/src"
 	"github.com/nfnt/resize"
 )
 
@@ -18,17 +17,17 @@ const (
 )
 
 var (
-	eye        = V(4, 4, 2)                  // camera position
-	center     = V(0, 0, 0)                  // view center position
-	up         = V(0, 0, 1)                  // up vector
-	light      = V(0.25, 0.5, 1).Normalize() // light direction
-	color      = HexColor("#FEB41C")         // object color
-	background = HexColor("#24221F")         // background color
+	eye        = fauxgl.V(4, 4, 2)                  // camera position
+	center     = fauxgl.V(0, 0, 0)                  // view center position
+	up         = fauxgl.V(0, 0, 1)                  // up vector
+	light      = fauxgl.V(0.25, 0.5, 1).Normalize() // light direction
+	color      = fauxgl.HexColor("#FEB41C")         // object color
+	background = fauxgl.HexColor("#24221F")         // background color
 )
 
 func main() {
 	// load a mesh
-	mesh, err := LoadSTL(os.Args[1])
+	mesh, err := fauxgl.LoadSTL("examples/animate/cube.stl")
 	if err != nil {
 		panic(err)
 	}
@@ -40,20 +39,20 @@ func main() {
 	// mesh.SmoothNormalsThreshold(Radians(30))
 
 	// create a rendering context
-	context := NewContext(width*scale, height*scale)
+	context := fauxgl.NewContext(width*scale, height*scale)
 
 	// create transformation matrix and light direction
 	aspect := float64(width) / float64(height)
-	matrix := LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
+	matrix := fauxgl.LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
 
-	for i := 0; i < 360; i += 5 {
+	for i := 0; i < 360; i += 20 {
 		// render
 		context.ClearDepthBuffer()
 		context.ClearColorBufferWith(background)
-		shader := NewPhongShader(matrix, light, eye)
+		shader := fauxgl.NewPhongShader(matrix, light, eye)
 		shader.ObjectColor = color
-		shader.DiffuseColor = Gray(0.9)
-		shader.SpecularColor = Gray(0.25)
+		shader.DiffuseColor = fauxgl.Gray(0.9)
+		shader.SpecularColor = fauxgl.Gray(0.25)
 		shader.SpecularPower = 100
 		context.Shader = shader
 		context.DrawMesh(mesh)
@@ -61,8 +60,8 @@ func main() {
 		// save image
 		image := context.Image()
 		image = resize.Resize(width, height, image, resize.Bilinear)
-		SavePNG(fmt.Sprintf("out%03d.png", i), image)
+		fauxgl.SavePNG(fmt.Sprintf("out/out%03d.png", i), image)
 
-		mesh.Transform(Rotate(up, Radians(5)))
+		mesh.Transform(fauxgl.Rotate(up, fauxgl.Radians(5)))
 	}
 }
