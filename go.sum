@@ -1,5 +1,3 @@
-github.com/fogleman/fauxgl v0.0.0-20200407182642-576996add3ee h1:tR3sn0xyN7+oB3lOAwTSOHE+In94DsdO8kjs6szIX88=
-github.com/fogleman/fauxgl v0.0.0-20200407182642-576996add3ee/go.mod h1:7f7F8EvO8MWvDx9sIoloOfZBCKzlWuZV/h3TjpXOO3k=
 github.com/fogleman/simplify v0.0.0-20170216171241-d32f302d5046 h1:n3RPbpwXSFT0G8FYslzMUBDO09Ix8/dlqzvUkcJm4Jk=
 github.com/fogleman/simplify v0.0.0-20170216171241-d32f302d5046/go.mod h1:KDwyDqFmVUxUmo7tmqXtyaaJMdGon06y8BD2jmh84CQ=
 github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 h1:zYyBkD/k9seD2A7fsi6Oo2LfFZAehjjQMERAvZLEDnQ=
