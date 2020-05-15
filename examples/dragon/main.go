@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	. "github.com/fogleman/fauxgl"
+	fauxgl "github.com/aki-xavier/fauxgl/src"
 	"github.com/nfnt/resize"
 )
 
@@ -21,12 +21,12 @@ const (
 )
 
 var (
-	eye        = V(-3, 1.25, -2)               // camera position
-	center     = V(0, -0.1, -0.1)              // view center position
-	up         = V(0, 1, 0)                    // up vector
-	light      = V(-0.75, 1, 0.25).Normalize() // light direction
-	color      = HexColor("#468966")           // object color
-	background = HexColor("#FFF8E3")           // background color
+	eye        = fauxgl.V(-3, 1.25, -2)               // camera position
+	center     = fauxgl.V(0, -0.1, -0.1)              // view center position
+	up         = fauxgl.V(0, 1, 0)                    // up vector
+	light      = fauxgl.V(-0.75, 1, 0.25).Normalize() // light direction
+	color      = fauxgl.HexColor("#468966")           // object color
+	background = fauxgl.HexColor("#FFF8E3")           // background color
 )
 
 func timed(name string) func() {
@@ -44,7 +44,7 @@ func main() {
 
 	// load a mesh
 	done = timed("loading mesh")
-	mesh, err := LoadOBJ("examples/dragon.obj")
+	mesh, err := fauxgl.LoadSTL("examples/dragon/stl/dragon.stl")
 	if err != nil {
 		panic(err)
 	}
@@ -57,19 +57,19 @@ func main() {
 
 	// smooth the normals
 	done = timed("smoothing normals")
-	mesh.SmoothNormalsThreshold(Radians(30))
+	mesh.SmoothNormalsThreshold(fauxgl.Radians(30))
 	done()
 
 	// create a rendering context
-	context := NewContext(width*scale, height*scale)
+	context := fauxgl.NewContext(width*scale, height*scale)
 	context.ClearColorBufferWith(background)
 
 	// create transformation matrix and light direction
 	aspect := float64(width) / float64(height)
-	matrix := LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
+	matrix := fauxgl.LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
 
 	// render
-	shader := NewPhongShader(matrix, light, eye)
+	shader := fauxgl.NewPhongShader(matrix, light, eye)
 	shader.ObjectColor = color
 	context.Shader = shader
 	done = timed("rendering mesh")
@@ -84,6 +84,6 @@ func main() {
 
 	// save image
 	done = timed("writing output")
-	SavePNG("out.png", image)
+	fauxgl.SavePNG("out.png", image)
 	done()
 }

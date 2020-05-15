@@ -5,7 +5,7 @@ import (
 	"math"
 	"os"
 
-	. "github.com/fogleman/fauxgl"
+	fauxgl "github.com/aki-xavier/fauxgl/src"
 	"github.com/nfnt/resize"
 )
 
@@ -19,9 +19,9 @@ const (
 )
 
 var (
-	eye    = V(0, -1.1, 0)
-	center = V(0, 0, 0)
-	up     = V(0, 0, 1)
+	eye    = fauxgl.V(0, -1.1, 0)
+	center = fauxgl.V(0, 0, 0)
+	up     = fauxgl.V(0, 0, 1)
 )
 
 func timed(name string) func() {
@@ -34,7 +34,7 @@ func timed(name string) func() {
 	}
 }
 
-func fineTriangle(buf []*Triangle, t *Triangle, threshold float64) []*Triangle {
+func fineTriangle(buf []*fauxgl.Triangle, t *fauxgl.Triangle, threshold float64) []*fauxgl.Triangle {
 	v1 := t.V1
 	v2 := t.V2
 	v3 := t.V3
@@ -50,49 +50,51 @@ func fineTriangle(buf []*Triangle, t *Triangle, threshold float64) []*Triangle {
 		return buf
 	}
 	if d12 == max {
-		v := InterpolateVertexes(v1, v2, v3, VectorW{0.5, 0.5, 0, 1})
-		t1 := NewTriangle(v3, v1, v)
-		t2 := NewTriangle(v2, v3, v)
+		v := fauxgl.InterpolateVertexes(v1, v2, v3, fauxgl.VectorW{X: 0.5, Y: 0.5, Z: 0, W: 1})
+		t1 := fauxgl.NewTriangle(v3, v1, v)
+		t2 := fauxgl.NewTriangle(v2, v3, v)
 		buf = fineTriangle(buf, t1, threshold)
 		buf = fineTriangle(buf, t2, threshold)
 	} else if d23 == max {
-		v := InterpolateVertexes(v1, v2, v3, VectorW{0, 0.5, 0.5, 1})
-		t1 := NewTriangle(v1, v2, v)
-		t2 := NewTriangle(v3, v1, v)
+		v := fauxgl.InterpolateVertexes(v1, v2, v3, fauxgl.VectorW{X: 0, Y: 0.5, Z: 0.5, W: 1})
+		t1 := fauxgl.NewTriangle(v1, v2, v)
+		t2 := fauxgl.NewTriangle(v3, v1, v)
 		buf = fineTriangle(buf, t1, threshold)
 		buf = fineTriangle(buf, t2, threshold)
 	} else {
-		v := InterpolateVertexes(v1, v2, v3, VectorW{0.5, 0, 0.5, 1})
-		t1 := NewTriangle(v2, v3, v)
-		t2 := NewTriangle(v1, v2, v)
+		v := fauxgl.InterpolateVertexes(v1, v2, v3, fauxgl.VectorW{X: 0.5, Y: 0, Z: 0.5, W: 1})
+		t1 := fauxgl.NewTriangle(v2, v3, v)
+		t2 := fauxgl.NewTriangle(v1, v2, v)
 		buf = fineTriangle(buf, t1, threshold)
 		buf = fineTriangle(buf, t2, threshold)
 	}
 	return buf
 }
 
-func fineMesh(mesh *Mesh, threshold float64) *Mesh {
-	var triangles []*Triangle
+func fineMesh(mesh *fauxgl.Mesh, threshold float64) *fauxgl.Mesh {
+	var triangles []*fauxgl.Triangle
 	for _, t := range mesh.Triangles {
 		triangles = fineTriangle(triangles, t, threshold)
 	}
-	return NewTriangleMesh(triangles)
+	return fauxgl.NewTriangleMesh(triangles)
 }
 
+// Edge :
 type Edge struct {
-	A, B Vector
+	A, B fauxgl.Vector
 }
 
-func MakeEdge(a, b Vector) Edge {
+// MakeEdge :
+func MakeEdge(a, b fauxgl.Vector) Edge {
 	if a.Less(b) {
 		return Edge{a, b}
 	}
 	return Edge{b, a}
 }
 
-func sharpEdges(mesh *Mesh) *Mesh {
-	var lines []*Line
-	other := make(map[Edge]*Triangle)
+func sharpEdges(mesh *fauxgl.Mesh) *fauxgl.Mesh {
+	var lines []*fauxgl.Line
+	other := make(map[Edge]*fauxgl.Triangle)
 	for _, t := range mesh.Triangles {
 		p1 := t.V1.Position //.RoundPlaces(6)
 		p2 := t.V2.Position //.RoundPlaces(6)
@@ -103,8 +105,8 @@ func sharpEdges(mesh *Mesh) *Mesh {
 		for _, e := range []Edge{e1, e2, e3} {
 			if u, ok := other[e]; ok {
 				a := math.Acos(t.Normal().Dot(u.Normal()))
-				if a > Radians(60) {
-					lines = append(lines, NewLineForPoints(e.A, e.B))
+				if a > fauxgl.Radians(60) {
+					lines = append(lines, fauxgl.NewLineForPoints(e.A, e.B))
 				}
 			}
 		}
@@ -112,7 +114,7 @@ func sharpEdges(mesh *Mesh) *Mesh {
 		other[e2] = t
 		other[e3] = t
 	}
-	return NewLineMesh(lines)
+	return fauxgl.NewLineMesh(lines)
 }
 
 func main() {
@@ -120,7 +122,7 @@ func main() {
 
 	// load a mesh
 	done = timed("loading mesh")
-	mesh, err := LoadMesh(os.Args[1])
+	mesh, err := fauxgl.LoadMesh(os.Args[1])
 	if err != nil {
 		panic(err)
 	}
@@ -136,21 +138,21 @@ func main() {
 	// fmt.Println(len(mesh.Triangles))
 
 	// create a rendering context
-	context := NewContext(width*scale, height*scale)
+	context := fauxgl.NewContext(width*scale, height*scale)
 
 	// create transformation matrix and light direction
 	aspect := float64(width) / float64(height)
-	matrix := LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
+	matrix := fauxgl.LookAt(eye, center, up).Perspective(fovy, aspect, near, far)
 	// const s = 1.1
 	// matrix := LookAt(eye, center, up).Orthographic(-aspect*s, aspect*s, -s, s, near, far)
 
 	// render
-	context.Shader = NewSolidColorShader(matrix, Black)
+	context.Shader = fauxgl.NewSolidColorShader(matrix, fauxgl.Black)
 	done = timed("rendering mesh")
 	context.DrawMesh(mesh)
 	done()
 
-	context.ClearColorBufferWith(White)
+	context.ClearColorBufferWith(fauxgl.White)
 	context.DepthBias = -1e-5
 
 	done = timed("rendering mesh")
@@ -158,7 +160,7 @@ func main() {
 	// context.Shader = NewSolidColorShader(matrix, Color{1, 0, 0, 1})
 	// context.DrawMesh(sharpEdges(mesh))
 
-	context.Shader = NewSolidColorShader(matrix, Black)
+	context.Shader = fauxgl.NewSolidColorShader(matrix, fauxgl.Black)
 	// context.DrawMesh(mesh.Silhouette(eye, 1e-3))
 	for _, line := range mesh.Silhouette(eye, 1e-3).Lines {
 		info := context.DrawLine(line)
@@ -186,6 +188,6 @@ func main() {
 
 	// save image
 	done = timed("writing output")
-	SavePNG("out-fine.png", image)
+	fauxgl.SavePNG("out-fine.png", image)
 	done()
 }

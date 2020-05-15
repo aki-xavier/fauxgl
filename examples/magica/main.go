@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	. "github.com/fogleman/fauxgl"
+	fauxgl "github.com/aki-xavier/fauxgl/src"
 	"github.com/nfnt/resize"
 )
 
@@ -19,10 +19,10 @@ const (
 )
 
 var (
-	eye    = V(-10, -10, 10)                // camera position
-	center = V(0, 0, -0.25)                 // view center position
-	up     = V(0, 0, 1)                     // up vector
-	light  = V(-0.25, -0.75, 1).Normalize() // light direction
+	eye    = fauxgl.V(-10, -10, 10)                // camera position
+	center = fauxgl.V(0, 0, -0.25)                 // view center position
+	up     = fauxgl.V(0, 0, 1)                     // up vector
+	light  = fauxgl.V(-0.25, -0.75, 1).Normalize() // light direction
 )
 
 func timed(name string) func() {
@@ -42,14 +42,14 @@ func main() {
 
 	// load a mesh
 	done = timed("loading vox file")
-	voxels, err := LoadVOX(os.Args[1])
+	voxels, err := fauxgl.LoadVOX(os.Args[1])
 	if err != nil {
 		panic(err)
 	}
 	done()
 
 	done = timed("generating mesh")
-	mesh := NewVoxelMesh(voxels)
+	mesh := fauxgl.NewVoxelMesh(voxels)
 	done()
 
 	fmt.Println(len(voxels), "voxels")
@@ -60,24 +60,24 @@ func main() {
 	mesh.BiUnitCube()
 
 	// create a rendering context
-	context := NewContext(width*scale, height*scale)
-	context.ClearColorBufferWith(HexColor("323"))
+	context := fauxgl.NewContext(width*scale, height*scale)
+	context.ClearColorBufferWith(fauxgl.HexColor("323"))
 
 	// create transformation matrix and light direction
 	const s = 1.5
-	matrix := LookAt(eye, center, up).Orthographic(-s, s, -s, s, -20, 20)
+	matrix := fauxgl.LookAt(eye, center, up).Orthographic(-s, s, -s, s, -20, 20)
 
 	// render
-	shader := NewPhongShader(matrix, light, eye)
-	shader.AmbientColor = Gray(0.4)
-	shader.DiffuseColor = Gray(0.9)
+	shader := fauxgl.NewPhongShader(matrix, light, eye)
+	shader.AmbientColor = fauxgl.Gray(0.4)
+	shader.DiffuseColor = fauxgl.Gray(0.9)
 	shader.SpecularPower = 0
 	context.Shader = shader
 	done = timed("rendering triangles")
 	context.DrawTriangles(mesh.Triangles)
 	done()
 
-	context.Shader = NewSolidColorShader(matrix, HexColor("000"))
+	context.Shader = fauxgl.NewSolidColorShader(matrix, fauxgl.HexColor("000"))
 	context.Wireframe = true
 	context.LineWidth = scale * 2
 	context.DepthBias = -4e-5
@@ -93,7 +93,7 @@ func main() {
 
 	// save image
 	done = timed("writing output")
-	SavePNG("out.png", image)
+	fauxgl.SavePNG("out.png", image)
 	done()
 
 	total()
