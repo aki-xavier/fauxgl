@@ -1,6 +1,10 @@
 package fauxgl
 
-import "image"
+var (
+	eye    = V(-1, -2, 2)
+	center = V(-0.07, 0, 0)
+	up     = V(0, 0, 1)
+)
 
 // Scene :
 type Scene struct {
@@ -9,7 +13,7 @@ type Scene struct {
 	BackgroundColor Color
 	Width           int
 	Height          int
-	ColorBuffer     *image.NRGBA
+	Context         *Context
 }
 
 // CreateScene :
@@ -20,13 +24,26 @@ func CreateScene(width, height int) *Scene {
 	s.Camera = CreateCamera()
 	s.Width = width
 	s.Height = height
-	s.ColorBuffer = image.NewNRGBA(image.Rect(0, 0, s.Width, s.Height))
+	s.Context = NewContext(s.Width, s.Height)
+	s.Context.ClearColor = s.BackgroundColor
+
+	aspect := float64(width) / float64(height)
+	matrix := LookAt(eye, center, up).Perspective(20, aspect, 1, 50)
+	light := V(-2, 0, 1).Normalize()
+	color := Color{R: 0.5, G: 1, B: 0.65, A: 1}
+	shader := NewPhongShader(matrix, light, eye)
+	shader.ObjectColor = color
+
+	s.Context.Shader = shader
 	return s
 }
 
 // Render :
 func (s *Scene) Render() {
-	s.fillColorBufferWith(s.BackgroundColor)
+	s.Context.ClearColorBuffer()
+	for _, obj := range s.Objects {
+		s.Context.DrawMesh(obj.Mesh)
+	}
 }
 
 // AddObject :
@@ -47,16 +64,16 @@ func (s *Scene) ContainsObject(o *Object) bool {
 	return false
 }
 
-func (s *Scene) fillColorBufferWith(color Color) {
-	c := color.NRGBA()
-	for y := 0; y < s.Height; y++ {
-		i := s.ColorBuffer.PixOffset(0, y)
-		for x := 0; x < s.Width; x++ {
-			s.ColorBuffer.Pix[i+0] = c.R
-			s.ColorBuffer.Pix[i+1] = c.G
-			s.ColorBuffer.Pix[i+2] = c.B
-			s.ColorBuffer.Pix[i+3] = c.A
-			i += 4
-		}
-	}
-}
+// func (s *Scene) fillColorBufferWith(color Color) {
+// 	c := color.NRGBA()
+// 	for y := 0; y < s.Height; y++ {
+// 		i := s.ColorBuffer.PixOffset(0, y)
+// 		for x := 0; x < s.Width; x++ {
+// 			s.ColorBuffer.Pix[i+0] = c.R
+// 			s.ColorBuffer.Pix[i+1] = c.G
+// 			s.ColorBuffer.Pix[i+2] = c.B
+// 			s.ColorBuffer.Pix[i+3] = c.A
+// 			i += 4
+// 		}
+// 	}
+// }

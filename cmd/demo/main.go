@@ -9,5 +9,5 @@ func main() {
 	scene.AddObject(obj)
 
 	scene.Render()
-	fauxgl.SavePNG("out.png", scene.ColorBuffer)
+	fauxgl.SavePNG("out.png", scene.Context.Image())
 }
